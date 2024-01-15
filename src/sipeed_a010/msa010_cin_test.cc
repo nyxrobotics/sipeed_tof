@@ -4,9 +4,9 @@
 
 #include "msa010.hpp"
 
-int main(int argc, char const* argv[])
+int main(int /*argc*/, char const* /*argv*/[])
 {
-  auto a010 = std::make_unique<msa010>();
+  auto a010 = std::make_unique<Msa010>();
 
   std::deque<std::string> dq;
 
@@ -22,13 +22,13 @@ int main(int argc, char const* argv[])
 
   while (1)
   {
-    a010->keep_connect();
+    a010->keepConnect();
 
-    while (a010->is_connected())
+    while (a010->isConnected())
     {
       std::string s;
       a010 >> s;
-      if (s.size())
+      if (!s.empty())
       {
         std::cerr << s;
         std::cerr << "--------------ONCE--------------" << std::endl;

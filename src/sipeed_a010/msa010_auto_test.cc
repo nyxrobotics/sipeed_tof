@@ -5,20 +5,20 @@
 #include "frame_struct.h"
 #include "msa010.hpp"
 
-int main(int argc, char const* argv[])
+int main(int /*argc*/, char const* /*argv*/[])
 {
-  auto a010 = std::make_unique<msa010>();
+  auto a010 = std::make_unique<Msa010>();
 
   std::string s;
   while (1)
   {
-    a010->keep_connect();
+    a010->keepConnect();
 
     a010 << "AT+DISP=1\r";
     do
     {
       a010 >> s;
-    } while (s.size());
+    } while (!s.empty());
 
     a010 << "AT\r";
     a010 >> s;
@@ -35,7 +35,7 @@ int main(int argc, char const* argv[])
     }
 
     a010 >> s;
-    if (!s.size())
+    if (s.empty())
     {  // not this serial port
       continue;
     }
@@ -70,15 +70,15 @@ int main(int argc, char const* argv[])
 
     uint16_t times = 0;
 
-    for (a010 >> s; s.size(); a010 >> s)
+    for (a010 >> s; !s.empty(); a010 >> s)
     {
       // for (a010->read_some(s); s.size(); a010->read_some(s)) {
-      extern frame_t* handle_process(const std::string& s);
-      frame_t* f = handle_process(s);
+      extern frame_t* handleProcess(const std::string& s);
+      frame_t* f = handleProcess(s);
       if (!f)
         continue;
 
-      cv::Mat src(f->frame_head.resolution_rows, f->frame_head.resolution_cols, CV_8UC1, f->payload);
+      cv::Mat src(f->frame_head_.resolution_rows_, f->frame_head_.resolution_cols_, CV_8UC1, f->payload_);
 
       std::stringstream fmt;
       fmt << "./" << times << ".jpg";
@@ -96,10 +96,10 @@ int main(int argc, char const* argv[])
     }
     std::cout << "end" << std::endl;
 
-    while (a010->is_connected())
+    while (a010->isConnected())
     {
       a010 >> s;
-      if (s.size())
+      if (!s.empty())
       {
         std::cerr << s;
         std::cerr << "--------------ONCE--------------" << std::endl;

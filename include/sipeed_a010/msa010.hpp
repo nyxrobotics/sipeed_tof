@@ -19,64 +19,64 @@ using namespace std::literals::chrono_literals;
     std::cout << "[" << duration_cast<milliseconds>(high_resolution_clock::now() - _start).count() * 0.001 << "]["     \
               << __LINE__ << "][" << std::this_thread::get_id() << ']' << std::endl;                                   \
   } while (0)
-static std::chrono::time_point<std::chrono::high_resolution_clock> _start = high_resolution_clock::now();
+static std::chrono::time_point<std::chrono::high_resolution_clock> g_START = high_resolution_clock::now();
 
-class msa010
+class Msa010
 {
 private:
-  const char* _serial_path;
-  std::size_t _read_timedout;
-  asio::io_service _ioc;
-  asio::serial_port _sp;
-  asio::deadline_timer _timeout;
+  const char* serial_path_;
+  std::size_t read_timedout_;
+  asio::io_service ioc_;
+  asio::serial_port sp_;
+  asio::deadline_timer timeout_;
   // asio::executor_work_guard<asio::io_service::executor_type> _worker;
-  std::unique_ptr<asio::io_service::work> _worker;
-  std::thread _ioc_run_thread;
+  std::unique_ptr<asio::io_service::work> worker_;
+  std::thread ioc_run_thread_;
 
 public:
-  msa010() : msa010(DEFAULT_USRT_PORT)
+  Msa010() : Msa010(DEFAULT_USRT_PORT)
   {
   }
-  msa010(const char* __serial_path)
-    : _serial_path(__serial_path)
-    , _read_timedout(DEFAULT_READ_TIMEDOUT)
-    , _ioc()
-    , _sp(_ioc)
-    , _timeout(_ioc)
+  Msa010(const char* __serial_path)
+    : serial_path_(__serial_path)
+    , read_timedout_(DEFAULT_READ_TIMEDOUT)
+    , ioc_()
+    , sp_(ioc_)
+    , timeout_(ioc_)
     ,
     // _worker(asio::make_work_guard(_ioc)),
-    _worker(new asio::io_service::work(_ioc))
-    , _ioc_run_thread(std::bind([](asio::io_service& _ioc) { _ioc.run(); }, std::ref(_ioc)))
+    worker_(new asio::io_service::work(ioc_))
+    , ioc_run_thread_(std::bind([](asio::io_service& _ioc) { _ioc.run(); }, std::ref(ioc_)))
   {
   }
 
-  ~msa010()
+  ~Msa010()
   {
-    _worker.reset();
-    _ioc_run_thread.join();
+    worker_.reset();
+    ioc_run_thread_.join();
   };
 
-  inline bool is_connected()
+  inline bool isConnected()
   {
-    return _sp.is_open();
+    return sp_.is_open();
   }
 
-  void keep_connect(const std::function<bool(void)>& f)
+  void keepConnect(const std::function<bool(void)>& f)
   {
     boost::system::error_code ec;
-    if (_sp.is_open())
+    if (sp_.is_open())
       return;
     do
     {
-      ec = try_connect();
+      ec = tryConnect();
       // std::cout << "[INFO] Try connect to " << _serial_path << "..."
       //           << " Result: " << ec.message() << std::endl;
     } while (f() && ec);
   };
 
-  void keep_connect()
+  void keepConnect()
   {
-    keep_connect([] {
+    keepConnect([] {
       std::this_thread::sleep_for(1s);
       return true;
     });
@@ -90,26 +90,26 @@ public:
     // } while (ec);
   };
 
-  void set_read_timedout(std::size_t timeout)
+  void setReadTimedout(std::size_t timeout)
   {
-    this->_read_timedout = timeout;
+    this->read_timedout_ = timeout;
   }
 
   template <typename MutableBufferSequence>
-  std::size_t read_timedout(const MutableBufferSequence& buffers)
+  std::size_t readTimedout(const MutableBufferSequence& buffers)
   {
-    return read_timedout(buffers, _read_timedout);
+    return readTimedout(buffers, read_timedout_);
   }
 
   template <typename MutableBufferSequence>
-  std::size_t read_timedout(const MutableBufferSequence& buffers, std::size_t ms)
+  std::size_t readTimedout(const MutableBufferSequence& buffers, std::size_t ms)
   {
     bool is_timeout = false;
     bool had_data = false;
     std::size_t transferred = 0;
 
-    _timeout.expires_from_now(boost::posix_time::milliseconds(ms));
-    _timeout.async_wait([this, &had_data, &is_timeout](const boost::system::error_code& error) {
+    timeout_.expires_from_now(boost::posix_time::milliseconds(ms));
+    timeout_.async_wait([this, &had_data, &is_timeout](const boost::system::error_code& error) {
       if (error)
       {
         switch (error.value())
@@ -128,17 +128,17 @@ public:
       }
 
       // timeout
-      if (this->_sp.is_open())
+      if (this->sp_.is_open())
       {
         // std::cout << "[WARN][Timeout] Was Fired, No Data..." << std::endl;
-        this->_sp.cancel();  // will cause read_callback to fire with an error
+        this->sp_.cancel();  // will cause read_callback to fire with an error
       }
       is_timeout = true;
     });
 
-    _sp.async_read_some(buffers,
+    sp_.async_read_some(buffers,
                         [this, &transferred](const boost::system::error_code& error, std::size_t bytes_transferred) {
-                          this->_timeout.cancel();  // will cause wait_callback to fire with an error
+                          this->timeout_.cancel();  // will cause wait_callback to fire with an error
                           if (error)
                           {
                             // No data was read!
@@ -147,13 +147,13 @@ public:
                               case boost::asio::error::eof: /* End of file */ {
                                 /* disconnect */
                                 // std::cout << "[WARN][Serial] End of file..." << std::endl;
-                                this->_sp.close();
+                                this->sp_.close();
                               }
                               break;
                               case boost::asio::error::bad_descriptor: /* Bad file descriptor */ {
                                 // std::cout << "[WARN][Serial] Bad file descriptor..." <<
                                 // std::endl;
-                                this->_sp.close();
+                                this->sp_.close();
                               }
                               break;
                             }
@@ -171,37 +171,37 @@ public:
     return transferred;
   }
 
-  std::size_t read_some(std::string& s)
+  std::size_t readSome(std::string& s)
   {
 #define MAX_SIZE ((25 * 25 + 22) * 4 * 4)
     std::size_t len;
     boost::system::error_code ec;
 
     s.reserve(MAX_SIZE);
-    len = this->_sp.read_some(asio::buffer(s, MAX_SIZE), ec);
+    len = this->sp_.read_some(asio::buffer(s, MAX_SIZE), ec);
     if (ec)
-      this->_sp.close();
+      this->sp_.close();
 
     return len;
   }
 
-  inline msa010& operator<<(const std::string& s)
+  inline Msa010& operator<<(const std::string& s)
   {
     boost::system::error_code ec;
-    this->_sp.write_some(asio::buffer(s), ec);
+    this->sp_.write_some(asio::buffer(s), ec);
     if (ec)
-      this->_sp.close();
+      this->sp_.close();
     return *this;
   }
 
-  inline msa010& operator>>(std::string& s)
+  inline Msa010& operator>>(std::string& s)
   {
 #define MAX_SIZE ((25 * 25 + 22) * 4 * 4)
     static char b[MAX_SIZE];
     std::size_t len;
 
     s.clear();
-    len = read_timedout(asio::buffer(b));
+    len = readTimedout(asio::buffer(b));
     if (len)
     {
       s.append(b, len);
@@ -210,44 +210,44 @@ public:
     return *this;
   }
 
-  friend inline std::unique_ptr<msa010>& operator<<(std::unique_ptr<msa010>& a010, const std::string& s)
+  friend inline std::unique_ptr<Msa010>& operator<<(std::unique_ptr<Msa010>& a010, const std::string& s)
   {
     *a010 << s;
     return a010;
   }
 
-  friend inline std::unique_ptr<msa010>& operator>>(std::unique_ptr<msa010>& a010, std::string& s)
+  friend inline std::unique_ptr<Msa010>& operator>>(std::unique_ptr<Msa010>& a010, std::string& s)
   {
     *a010 >> s;
     return a010;
   }
 
 private:
-  boost::system::error_code try_connect()
+  boost::system::error_code tryConnect()
   {
     using sp = boost::asio::serial_port;
 
     boost::system::error_code ec;
-    _sp.open(_serial_path, ec);
+    sp_.open(serial_path_, ec);
     if (ec)
       return ec;
     try
     {
       // baud rate
-      _sp.set_option(sp::baud_rate(115200));
+      sp_.set_option(sp::baud_rate(115200));
       // character size
-      _sp.set_option(sp::character_size(8));
+      sp_.set_option(sp::character_size(8));
       // Parity check, can be serial_port::parity::none / odd / even.
-      _sp.set_option(sp::parity(sp::parity::none));
+      sp_.set_option(sp::parity(sp::parity::none));
       // Stop bit, can be serial_port::stop_bits::one / onepointfive /two
-      _sp.set_option(sp::stop_bits(sp::stop_bits::one));
+      sp_.set_option(sp::stop_bits(sp::stop_bits::one));
       // Flow control, which can be serial_port::flow_control::type, enum type, which can be none
-      _sp.set_option(sp::flow_control(sp::flow_control::none));
+      sp_.set_option(sp::flow_control(sp::flow_control::none));
     }
     catch (boost::system::system_error const& ex)
     {
       ec = ex.code();
-      _sp.close();
+      sp_.close();
     }
     return ec;
   }

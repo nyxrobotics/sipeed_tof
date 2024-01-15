@@ -1,37 +1,37 @@
 #include <stdint.h>
-struct __attribute__((packed)) all_config_t
+struct __attribute__((packed)) AllConfigT
 {
-  uint8_t triggermode;  // 0:STOP 1:AUTO 2:SINGLE
-  uint8_t deepmode;     // 0:16bit 1:8bit
-  uint8_t deepshift;    // for 8bit mode
-  uint8_t irmode;       // 0:16bit 1:8bit
-  uint8_t statusmode;   // 0:16bit 1:2bit 2:8bit 3:1bit
-  uint8_t statusmask;   // for 1bit mode 1:1 2:2 4:3
-  uint8_t rgbmode;      // 0:YUV 1:JPG 2:None
-  uint8_t rgbres;       // 0:800*600 1:1600*1200
-  int32_t expose_time;
-  void check_and_fix()
+  uint8_t triggermode_;  // 0:STOP 1:AUTO 2:SINGLE
+  uint8_t deepmode_;     // 0:16bit 1:8bit
+  uint8_t deepshift_;    // for 8bit mode
+  uint8_t irmode_;       // 0:16bit 1:8bit
+  uint8_t statusmode_;   // 0:16bit 1:2bit 2:8bit 3:1bit
+  uint8_t statusmask_;   // for 1bit mode 1:1 2:2 4:3
+  uint8_t rgbmode_;      // 0:YUV 1:JPG 2:None
+  uint8_t rgbres_;       // 0:800*600 1:1600*1200
+  int32_t expose_time_;
+  void checkAndFix()
   {
-    if (triggermode > 2)
-      triggermode = 0;
-    if (deepmode > 1)
-      deepmode = 0;
-    if (deepshift > 11 && deepshift != 255)
-      deepmode = 0;
-    if (irmode > 1)
-      irmode = 0;
-    if (statusmode > 3)
-      statusmask = 0;
-    if (statusmask > 7)
-      statusmask = 0;
-    if (rgbmode > 3)
-      rgbmode = 0;
-    if (rgbres > 3)
-      rgbres = 0;
+    if (triggermode_ > 2)
+      triggermode_ = 0;
+    if (deepmode_ > 1)
+      deepmode_ = 0;
+    if (deepshift_ > 11 && deepshift_ != 255)
+      deepmode_ = 0;
+    if (irmode_ > 1)
+      irmode_ = 0;
+    if (statusmode_ > 3)
+      statusmask_ = 0;
+    if (statusmask_ > 7)
+      statusmask_ = 0;
+    if (rgbmode_ > 3)
+      rgbmode_ = 0;
+    if (rgbres_ > 3)
+      rgbres_ = 0;
   }
-  int get_depth_size()
+  int getDepthSize()
   {
-    switch (deepmode)
+    switch (deepmode_)
     {
       case 0:
         return 320 * 240 * 2;
@@ -39,9 +39,9 @@ struct __attribute__((packed)) all_config_t
         return 320 * 240;
     }
   }
-  int get_ir_size()
+  int getIrSize()
   {
-    switch (irmode)
+    switch (irmode_)
     {
       case 0:
         return 320 * 240 * 2;
@@ -49,9 +49,9 @@ struct __attribute__((packed)) all_config_t
         return 320 * 240;
     }
   }
-  int get_status_size()
+  int getStatusSize()
   {
-    switch (statusmode)
+    switch (statusmode_)
     {
       case 0:
         return 320 * 240 * 2;
@@ -68,59 +68,59 @@ struct __attribute__((packed)) all_config_t
 #define PIXEL_ROWS (240)
 #define PIXEL_COLS (320)
 typedef uint16_t Image_t[PIXEL_ROWS][PIXEL_COLS];
-struct stackframe_old_t
+struct StackframeOldT
 {
-  uint64_t frameid;
-  uint64_t framestamp;
-  Image_t depth;
-  Image_t ir;
-  Image_t status;
-  uint8_t rgb[800 * 600 * 4];
+  uint64_t frameid_;
+  uint64_t framestamp_;
+  Image_t depth_;
+  Image_t ir_;
+  Image_t status_;
+  uint8_t rgb_[800 * 600 * 4];
 };
 
-struct __attribute__((packed)) stackframe_t
+struct __attribute__((packed)) StackframeT
 {
-  uint64_t frameid;
-  uint64_t framestamp;
-  all_config_t config;
-  int deepsize;
-  int rgbsize;
-  uint8_t* depth;
-  uint8_t* ir;
-  uint8_t* status;
-  uint8_t* rgb;
+  uint64_t frameid_;
+  uint64_t framestamp_;
+  AllConfigT config_;
+  int deepsize_;
+  int rgbsize_;
+  uint8_t* depth_;
+  uint8_t* ir_;
+  uint8_t* status_;
+  uint8_t* rgb_;
 };
 
 typedef struct
 {
-  uint8_t cali_mode;
-  float fx;
-  float fy;
-  float u0;
-  float v0;
-  float k1;
-  float k2;
-  float k3;
-  float k4_p1;
-  float k5_p2;
-  float skew;
+  uint8_t cali_mode_;
+  float fx_;
+  float fy_;
+  float u0_;
+  float v0_;
+  float k1_;
+  float k2_;
+  float k3_;
+  float k4_p1_;
+  float k5_p2_;
+  float skew_;
 } __attribute__((packed)) LensCoeff_t;
 
 typedef struct
 {
-  char sensor_pn[9];  // Sensor part number
-  char module_vendor[2];
-  char module_type[2];
-  char module_sn[16];  // module serial number
-  char vcsel_id[4];
-  char bin_version[3];
-  uint8_t cali_algo_ver[2];  // Algorithm version for  this coefficient. X.Y.
-                             // e.g 9.62
-  uint8_t firmware_ver[2];   // ISP firmware version
+  char sensor_pn_[9];  // Sensor part number
+  char module_vendor_[2];
+  char module_type_[2];
+  char module_sn_[16];  // module serial number
+  char vcsel_id_[4];
+  char bin_version_[3];
+  uint8_t cali_algo_ver_[2];  // Algorithm version for  this coefficient. X.Y.
+                              // e.g 9.62
+  uint8_t firmware_ver_[2];   // ISP firmware version
 } __attribute__((packed)) ModuleInfor_t;
 
-struct __attribute__((packed)) info_t
+struct __attribute__((packed)) InfoT
 {
-  ModuleInfor_t module_info;
-  LensCoeff_t coeff;
+  ModuleInfor_t module_info_;
+  LensCoeff_t coeff_;
 };

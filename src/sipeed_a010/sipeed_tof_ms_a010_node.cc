@@ -11,7 +11,7 @@
 #include "frame_struct.h"
 #include "msa010.hpp"
 
-extern const uint8_t color_lut_jet[][3];
+extern const uint8_t g_COLOR_LUT_JET[][3];
 
 int main(int argc, char** argv)
 {
@@ -23,7 +23,7 @@ int main(int argc, char** argv)
   node_obj.param<std::string>("device", s, "/dev/ttyUSB0");
   std::cout << "use device: " << s << std::endl;
 
-  auto a010 = std::make_unique<msa010>(strdup(s.c_str()));
+  auto a010 = std::make_unique<Msa010>(strdup(s.c_str()));
 
   // Create a topic publishing node, the node is number_publisher, the name of the published topic is "/numbers", and
   // the published data type is Int32. The second item is buffer size parameter.
@@ -48,8 +48,8 @@ int main(int argc, char** argv)
   while (ros::ok())
   {
     ROS_INFO("Try connecting...");
-    a010->keep_connect([]() { return ros::ok(); });
-    if (!a010->is_connected())
+    a010->keepConnect([]() { return ros::ok(); });
+    if (!a010->isConnected())
     {
       break;
     }
@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     do
     {
       a010 >> s;
-    } while (s.size());
+    } while (!s.empty());
 
     a010 << "AT\r";
     a010 >> s;
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
     }
 
     a010 >> s;
-    if (!s.size())
+    if (s.empty())
     {  // not this serial port
       continue;
     }
@@ -108,25 +108,25 @@ int main(int argc, char** argv)
 
     std::size_t count = 0;
     frame_t* f;
-    while (ros::ok() && a010->is_connected())
+    while (ros::ok() && a010->isConnected())
     {
       a010 >> s;
-      if (!s.size())
+      if (s.empty())
         continue;
 
-      extern frame_t* handle_process(const std::string& s);
-      f = handle_process(s);
+      extern frame_t* handleProcess(const std::string& s);
+      f = handleProcess(s);
       if (!f)
         continue;
       count += 1;
 
       uint8_t rows, cols, *depth;
-      rows = f->frame_head.resolution_rows;
-      cols = f->frame_head.resolution_cols;
-      depth = f->payload;
+      rows = f->frame_head_.resolution_rows_;
+      cols = f->frame_head_.resolution_cols_;
+      depth = f->payload_;
       cv::Mat md(rows, cols, CV_8UC1, depth);
 
-      ROS_INFO("Publishing %8u's frame:%p", count, f);
+      ROS_INFO("Publishing %8zu's frame:%p", count, f);
       std_msgs::Header header;
       header.stamp = ros::Time::now();
       header.frame_id = "map";
@@ -181,7 +181,7 @@ int main(int argc, char** argv)
             *((float*)(ptr + 0)) = x;
             *((float*)(ptr + 4)) = y;
             *((float*)(ptr + 8)) = z;
-            const uint8_t* color = color_lut_jet[depth[j * (pcmsg.width) + i]];
+            const uint8_t* color = g_COLOR_LUT_JET[depth[j * (pcmsg.width) + i]];
             uint32_t color_r = color[0];
             uint32_t color_g = color[1];
             uint32_t color_b = color[2];
@@ -202,7 +202,7 @@ int main(int argc, char** argv)
   return 0;
 }
 
-const uint8_t color_lut_jet[][3] = {
+const uint8_t g_COLOR_LUT_JET[][3] = {
   { 128, 0, 0 },     { 132, 0, 0 },     { 136, 0, 0 },     { 140, 0, 0 },     { 144, 0, 0 },     { 148, 0, 0 },
   { 152, 0, 0 },     { 156, 0, 0 },     { 160, 0, 0 },     { 164, 0, 0 },     { 168, 0, 0 },     { 172, 0, 0 },
   { 176, 0, 0 },     { 180, 0, 0 },     { 184, 0, 0 },     { 188, 0, 0 },     { 192, 0, 0 },     { 196, 0, 0 },
