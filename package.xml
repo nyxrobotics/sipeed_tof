@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>sipeed_a075</name>
+  <name>sipeed_tof</name>
   <version>0.0.0</version>
-  <description>The sipeed_tof_cpp package</description>
-  <maintainer email="tinylib@todo.todo">tinylib</maintainer>
+  <description>ROS package for sippeed tof camera</description>
+  <maintainer email="taorye@todo.todo">taorye</maintainer>
   <license>Apache 2.0</license>
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>cv_bridge</build_depend>
