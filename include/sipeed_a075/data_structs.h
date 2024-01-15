@@ -1,3 +1,4 @@
+#pragma once
 #include <stdint.h>
 struct __attribute__((packed)) AllConfigT
 {
@@ -38,6 +39,7 @@ struct __attribute__((packed)) AllConfigT
       case 1:
         return 320 * 240;
     }
+    return 0;
   }
   int getIrSize()
   {
@@ -48,6 +50,7 @@ struct __attribute__((packed)) AllConfigT
       case 1:
         return 320 * 240;
     }
+    return 0;
   }
   int getStatusSize()
   {
@@ -62,6 +65,7 @@ struct __attribute__((packed)) AllConfigT
       case 3:
         return 320 * 240 / 8;
     }
+    return 0;
   };
 };
 

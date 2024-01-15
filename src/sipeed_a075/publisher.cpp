@@ -195,11 +195,11 @@ void timerCallback()
   header.frame_id = "tof";
 
   // auto rgbmsg = sensor_msgs::Image();
-  Mat m_rgb(600, 800, CV_8UC4, (void*)oldframe.rgb_);
-  Mat md(240, 320, CV_16UC1, (void*)oldframe.depth_);
-  Mat mi(240, 320, CV_16UC1, (void*)oldframe.ir_);
-  Mat ms(240, 320, CV_16UC1, (void*)oldframe.status_);
-  Mat m_rgb_bgr;
+  cv::Mat m_rgb(600, 800, CV_8UC4, (void*)oldframe.rgb_);
+  cv::Mat md(240, 320, CV_16UC1, (void*)oldframe.depth_);
+  cv::Mat mi(240, 320, CV_16UC1, (void*)oldframe.ir_);
+  cv::Mat ms(240, 320, CV_16UC1, (void*)oldframe.status_);
+  cv::Mat m_rgb_bgr;
   cvtColor(m_rgb, m_rgb_bgr, CV_RGBA2BGR);
   sensor_msgs::Image rgbmsg = *cv_bridge::CvImage(std_msgs::Header(), "bgr8", m_rgb_bgr).toImageMsg().get();
   sensor_msgs::Image dmsg = *cv_bridge::CvImage(std_msgs::Header(), "mono16", md).toImageMsg().get();
