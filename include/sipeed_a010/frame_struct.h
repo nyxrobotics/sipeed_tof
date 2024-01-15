@@ -14,7 +14,8 @@ extern "C" {
 #define FRAME_CHECKSUM_SIZE (1)
 #define FRAME_END_SIZE (1)
 
-typedef struct {
+typedef struct
+{
   uint16_t frame_begin_flag;
   uint16_t frame_data_len;
   uint8_t reserved1;    // fixed to 0xff
@@ -32,12 +33,14 @@ typedef struct {
 } __attribute__((packed)) frame_head_t;
 static_assert(FRAME_HEAD_SIZE == sizeof(frame_head_t), "err");
 
-typedef struct {
+typedef struct
+{
   frame_head_t frame_head;
   uint8_t payload[];
 } __attribute__((packed)) frame_t;
 
-typedef struct {
+typedef struct
+{
   uint8_t cali_mode;  // 0:Normal, 1:Fisheye
   uint32_t fx;        // fixpoint: u14p18
   uint32_t fy;        // fixpoint: u14p18
