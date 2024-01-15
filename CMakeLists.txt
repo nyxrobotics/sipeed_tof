@@ -35,6 +35,7 @@ catkin_package(
 )
 
 include_directories(
+  third_party/cJSON
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
@@ -45,7 +46,7 @@ add_executable(
   sipeed_a010
   src/sipeed_a010/sipeed_tof_ms_a010_node.cc
   src/sipeed_a010/frame_handle.cc
-  src/sipeed_a010/cJSON.c
+  third_party/cJSON/cJSON.c
 )
 target_link_libraries(
   sipeed_a010
@@ -70,7 +71,7 @@ add_executable(
   sipeed_a075
   src/sipeed_a075/publisher.cpp
   src/sipeed_a075/process.cpp
-  src/sipeed_a075/cJSON.c
+  third_party/cJSON/cJSON.c
 )
 target_link_libraries(
   sipeed_a075
