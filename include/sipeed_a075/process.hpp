@@ -208,9 +208,9 @@ public:
         Mat D_VEC(1,5,CV_32F,D_VEC_data);
         Mat outpoints;
         Mat outpointsi;
-        Mat R_MAT2;
+        Mat r_mat_cv;
 //        T_MAT*=-1;
-        Rodrigues(R_MAT.t(),R_MAT2);
+        Rodrigues(R_MAT.t(),r_mat_cv);
 
 
 //            std::cout<<R_MAT<<std::endl;
@@ -218,7 +218,7 @@ public:
 //            std::cout<<RGB_CM<<std::endl;
 //            std::cout<<D_VEC<<std::endl;
         projectPoints(pos,
-                      R_MAT2, T_MAT,
+                      r_mat_cv, T_MAT,
                       RGB_CM,
                       D_VEC,
                       outpoints
@@ -297,13 +297,13 @@ public:
         cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, cam_matrix);
         cameraMatrix.copyTo(ToFcameraMatrix);
         float R_matrix[9] = {1,0,0,0,1,0,0,0,1};
-        cv::Mat RMatrix = cv::Mat(3, 3, CV_32F, R_matrix);
+        cv::Mat r_matrix_cv = cv::Mat(3, 3, CV_32F, R_matrix);
         float cam_dist_data[5] = {lens.k1,lens.k2,lens.k4_p1,lens.k5_p2,lens.k3};
         cv::Mat cam_dist = cv::Mat(1, 5, CV_32F, cam_dist_data);
         cv::Mat map1,map2;
         initUndistortRectifyMap	(cameraMatrix,
                                     cam_dist,
-                                    RMatrix,
+                                    r_matrix_cv,
                                     cameraMatrix,
                                     Size2i(320,240),
                                     CV_16SC2,
