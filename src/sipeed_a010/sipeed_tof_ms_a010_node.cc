@@ -14,9 +14,9 @@
 extern const uint8_t color_lut_jet[][3];
 
 int main(int argc, char **argv) {
-  // 初始化一个叫“sipeed_tof_ms_a010_ros_topic_publisher”的ROS节点
+  // Initialize a ROS node called "sipeed_tof_ms_a010_ros_topic_publisher"
   ros::init(argc, argv, "sipeed_tof_ms_a010_ros_topic_publisher");
-  // 创建一个Nodehandle对象，用来与ROS进行通信
+  // Create a Nodehandle object to communicate with ROS
   ros::NodeHandle node_obj("~");
   std::string s;
   node_obj.param<std::string>("device", s, "/dev/ttyUSB0");
@@ -24,8 +24,8 @@ int main(int argc, char **argv) {
 
   auto a010 = std::make_unique<msa010>(strdup(s.c_str()));
 
-  // 创建一个topic发布节点，节点是number_publisher，发布的topic的名称是"/numbers",发布的数据类型是Int32。第二项是buffer
-  // size参数。
+  // Create a topic publishing node, the node is number_publisher, the name of the published topic is "/numbers", and the published data type is Int32. The second item is buffer
+  // size parameter.
   std::string to_device(s.substr(5));
 
   std::stringstream ss;
@@ -41,10 +41,10 @@ int main(int argc, char **argv) {
       node_obj.advertise<sensor_msgs::PointCloud2>(strdup(ss.str().c_str()),
                                                    10);
 
-  // 定义发送数据频率，如果频率高的话注意同时调高上一个buffer size
+  // Define the frequency of sending data. If the frequency is high, be sure to increase the previous buffer size at the same time.
   ros::Rate loop_rate(30);
 
-  // 当按Ctrl+C时，ros::ok()会返回0，退出该while循环。
+  // When pressing Ctrl+C, ros::ok() will return 0 and exit the while loop.
 
   while (ros::ok()) {
     ROS_INFO("Try connecting...");
@@ -189,9 +189,9 @@ int main(int argc, char **argv) {
       }
 
       free(f);
-      // 读取和更新ROS topics，如果没有spinonce()或spin()，节点不会发布消息。
+      // Read and update ROS topics. Without spinonce() or spin(), the node will not publish messages.
       ros::spinOnce();
-      // 为了达到之前定义的发送频率，需要一个delay时间。
+      // In order to achieve the previously defined sending frequency, a delay time is required.
       loop_rate.sleep();
     }
   }

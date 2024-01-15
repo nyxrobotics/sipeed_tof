@@ -208,15 +208,15 @@ class msa010 {
     _sp.open(_serial_path, ec);
     if (ec) return ec;
     try {
-      // 波特率
+      // baud rate
       _sp.set_option(sp::baud_rate(115200));
-      // 字符大小
+      // character size
       _sp.set_option(sp::character_size(8));
-      // 奇偶校验，可以为serial_port::parity::none / odd / even。
+      // Parity check, can be serial_port::parity::none / odd / even.
       _sp.set_option(sp::parity(sp::parity::none));
-      // 停止位，可以为serial_port::stop_bits::one / onepointfive /two
+      // Stop bit, can be serial_port::stop_bits::one / onepointfive /two
       _sp.set_option(sp::stop_bits(sp::stop_bits::one));
-      // 流量控制，可以为serial_port::flow_control::type，enum类型，可以是none
+      // Flow control, which can be serial_port::flow_control::type, enum type, which can be none
       _sp.set_option(sp::flow_control(sp::flow_control::none));
     } catch (boost::system::system_error const& ex) {
       ec = ex.code();

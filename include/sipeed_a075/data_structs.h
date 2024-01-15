@@ -6,7 +6,7 @@ struct __attribute__ ((packed)) all_config_t{
     uint8_t irmode;//0:16bit 1:8bit
     uint8_t statusmode;//0:16bit 1:2bit 2:8bit 3:1bit
     uint8_t statusmask;//for 1bit mode 1:1 2:2 4:3
-    uint8_t rgbmode;//0:YUV 1:JPG 2：None
+    uint8_t rgbmode;// 0:YUV 1:JPG 2:None
     uint8_t rgbres;//0:800*600 1:1600*1200
     int32_t expose_time;
     void check_and_fix(){
