@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>sipeed_tof_ms_a010</name>
+  <name>sipeed_a010</name>
   <version>0.0.0</version>
   <description>The sipeed_tof_ms_a010 package</description>
 
