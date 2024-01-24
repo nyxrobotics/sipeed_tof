@@ -55,7 +55,6 @@ target_link_libraries(
   jpeg
 )
 target_include_directories(sipeed_a010 PUBLIC include/sipeed_a010)
-set_target_properties(sipeed_a010 PROPERTIES OUTPUT_NAME node PREFIX "")
 add_dependencies(
   sipeed_a010
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
@@ -80,7 +79,6 @@ target_link_libraries(
   jpeg
 )
 target_include_directories(sipeed_a075 PUBLIC include/sipeed_a075)
-set_target_properties(sipeed_a075 PROPERTIES OUTPUT_NAME node PREFIX "")
 add_dependencies(
   sipeed_a075
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
